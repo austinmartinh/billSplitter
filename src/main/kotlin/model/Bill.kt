@@ -1,7 +1,9 @@
 package model
 
-class Bill (val id:Int){
+import java.time.LocalDateTime
 
+data class Bill (var creatorId:Int){
+    val id = LocalDateTime.now().hashCode()
     var items = emptyList<Item>()
 
     var associatedPersonIds = emptyList<Int>()

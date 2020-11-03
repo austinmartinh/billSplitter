@@ -2,14 +2,15 @@ package model
 
 import java.time.LocalDateTime
 
-class Item (val id:Int, var name:String, var value:Float) {
+data class Item (var name:String, var value:Float) {
 
+    val id = LocalDateTime.now().hashCode()
     var billId = -1
     var paid = false
     var dateTime = LocalDateTime.now()
     var splits = emptyMap<String, Float>()
 
-    constructor(id:Int, name: String, value: Float, billId: Int) : this(id,name, value) {
+    constructor(id:Int, name: String, value: Float, billId: Int) : this(name, value) {
         this.billId = billId
     }
 

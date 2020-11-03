@@ -1,6 +1,10 @@
 package model
 
-class Person (var name:String,val id:Int){
+import java.time.LocalDateTime
+
+data class Person (var name:String, var isUser: Boolean){
+
+    val id = LocalDateTime.now().hashCode()
     // List of bills which feature this person
     var associatedBillIds = emptyList<Int>()
 
