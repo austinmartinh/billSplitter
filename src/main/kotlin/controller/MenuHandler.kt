@@ -2,6 +2,7 @@ package controller
 
 import model.Bill
 import model.Person
+import kotlin.system.exitProcess
 
 class MenuHandler(var p:PeopleManager,var b: BillManager) {
 
@@ -28,9 +29,9 @@ class MenuHandler(var p:PeopleManager,var b: BillManager) {
                 2 -> peopleMenu()
                 3 -> load()
                 4 -> save()
+                5 -> exit()
             }
         }
-        println("Bye!")
     }
 
     fun billMenu() {
@@ -162,6 +163,9 @@ class MenuHandler(var p:PeopleManager,var b: BillManager) {
             println("2. Create Person")   //createNewBill()
             println("3. Update Person")   //listAllBills
             println("4. Delete Person")   //listAllBillsForDelete()
+            println("5. Create Group")
+            println("6. Delete Group")
+            println("7. Update Group")
 
             println("\n0. Exit")
             println("------------------")
@@ -173,6 +177,8 @@ class MenuHandler(var p:PeopleManager,var b: BillManager) {
                 2 -> p.newPerson(readPersonalDetails())
                 3 -> handleUpdatePerson()
                 4 -> handleDeletePerson()
+                5 -> handleCreateGroup()
+                6 -> handleDeleteGroup()
                 0 -> break
             }
         }
@@ -224,7 +230,63 @@ class MenuHandler(var p:PeopleManager,var b: BillManager) {
         println("Who would you like to remove?")
         val selected = selectUserIndexFromList(p.getAllPeople())
         println("\nDeleting Person from list")
+        println("----------------------------")
         p.deletePerson(selected)
+    }
+
+    fun handleCreateGroup() {
+        var groupName = readGroupName()
+        println("----------------------------")
+        println("Select people to add to group")
+        println("----------------------------")
+        var members = readToAddToGroup()
+        p.createOrUpdateGroup(groupName,members)
+    }
+    fun handleDeleteGroup(){
+        listGroups(p.groups)
+        var groupName = readGroupName()
+        p.removeGroup(groupName)
+    }
+
+    fun listGroups(g : MutableMap<String, MutableList<Int>>) : Int{
+        println("Listing group names")
+        println("--------------------")
+        var i = 1
+        for (x in g){
+            var name=x.key
+            println("$i. $name")
+            i++
+        }
+        println("--------------------")
+        return g.size
+    }
+
+    private fun readGroupName(): String {
+        var groupName = ""
+        while (groupName == "") {
+            println("Enter the name of the group")
+            print("---> ")
+            groupName = readLine().toString()
+        }
+        return groupName
+    }
+
+    private fun readToAddToGroup() :MutableList<Int> {
+        var members = mutableListOf<Int>()
+        var finished = false
+        while (!finished) {
+            val people = p.getAllPeople()
+            var id = people[selectUserIndexFromList(people)].id
+            if (!members.contains(id)) {
+                members.add(id)
+            }
+            println("Would you like to add more people? (y/n)")
+            print("---> ")
+            if (readLine() != "y") {
+                finished = true
+            }
+        }
+        return members
     }
 
 
@@ -286,6 +348,10 @@ class MenuHandler(var p:PeopleManager,var b: BillManager) {
         b.load()
     }
 
+    fun exit(){
+        println("Bye!")
+        exitProcess(0)
+    }
 
 
 //Manage Bills

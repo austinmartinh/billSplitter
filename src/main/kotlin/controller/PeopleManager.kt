@@ -3,6 +3,7 @@ package controller
 import model.Person
 
 data class PeopleManager (var people:MutableList<Person>){
+    var groups = mutableMapOf<String,MutableList<Int>>()
 
     //Create new person and add to list
     fun newPerson(pair:Pair<String,Boolean>):Int?{
@@ -14,7 +15,24 @@ data class PeopleManager (var people:MutableList<Person>){
             null
     }
 
+    fun deletePerson(index:Int) : Boolean{
+        if(people.removeAt(index) != null){
+            return true
+        }
+        return false
+    }
 
+    fun updatePerson(index:Int,name:String,isUser:Boolean):Person {
+        var newPerson = people[index]
+        newPerson.name=name
+        if(newPerson.isUser != isUser){
+            newPerson.isUser = isUser
+            clearIsUser()
+        }
+        newPerson.isUser=isUser
+        people[index] = newPerson
+        return newPerson
+    }
 
     //Get person by ID - returns person
     fun getPersonById(id:Int) :Person? {
@@ -39,34 +57,20 @@ data class PeopleManager (var people:MutableList<Person>){
     }
 
     fun getAllPeople() : MutableList<Person>{
-//        println("Listing saved people")
-//        println("--------------------")
-//        for (x in people){
-//            var name=x.name
-//            var num = people.indexOf(x) +1
-//            println("$num. $name")
-//        }
         return people
     }
 
-    fun deletePerson(index:Int) : Boolean{
-       if(people.removeAt(index) != null){
-           return true
-       }
-        return false
+    fun createOrUpdateGroup(name:String,memberIds: MutableList<Int>){
+        groups[name] = memberIds
     }
 
-    fun updatePerson(index:Int,name:String,isUser:Boolean):Person {
-        var newPerson = people[index]
-        newPerson.name=name
-        if(newPerson.isUser != isUser){
-            newPerson.isUser = isUser
-            clearIsUser()
+    fun removeGroup(name:String){
+        if(groups.containsKey(name)) {
+            groups.remove(name)
         }
-        newPerson.isUser=isUser
-        people[index] = newPerson
-        return newPerson
     }
+
+
 
     fun clearIsUser(){
         for (x in people){
