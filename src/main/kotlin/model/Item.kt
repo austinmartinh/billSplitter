@@ -10,7 +10,7 @@ data class Item (var name:String, var value:Float) {
     var dateTime = LocalDateTime.now()
     var splits = emptyMap<String, Float>()
 
-    constructor(id:Int, name: String, value: Float, billId: Int) : this(name, value) {
+    constructor(name: String, value: Float, billId: Int) : this(name, value) {
         this.billId = billId
     }
 
