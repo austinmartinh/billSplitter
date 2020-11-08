@@ -36,4 +36,31 @@ data class Bill (var title:String){
             }
         }
     }
+
+    fun total() : Float {
+       var sum =0F
+        for(x in items){
+            sum += x.value
+        }
+        return sum
+    }
+
+    fun subtotals( names:MutableList<String>) : MutableMap<String,Float> {
+        var subtotals = mutableMapOf<String,Float>()
+        for(x in names) {
+            subtotals[x] = 0F
+            for (y in items) {
+                //ensures y.splits is not null
+                if (y.splits.containsKey(x)){
+                    subtotals[x]!! + y.splits[x]!!
+                }
+            }
+        }
+        return subtotals
+    }
+
+    fun recalc(){
+
+    }
+
 }

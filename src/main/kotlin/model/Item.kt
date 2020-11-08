@@ -1,24 +1,42 @@
 package model
 
 import java.time.LocalDateTime
+import javax.print.DocFlavor
 
-data class Item (var name:String, var value:Float) {
+data class Item (var name:String, var value:Float, var billId:Int) {
 
     val id = LocalDateTime.now().hashCode()
-    var billId = -1
-    var paid = false
     var dateTime = LocalDateTime.now()
-    var splits = emptyMap<String, Float>()
+    var splits = mutableMapOf<String, Float>()
 
-    constructor(name: String, value: Float, billId: Int) : this(name, value) {
-        this.billId = billId
+    fun update(name:String, value:Float, recalc:Boolean, splits :MutableMap<String,Float>){
+        this.name = name
+        this.value = value
+        if(recalc){
+            this.recalc()
+        }
+        else{
+            this.splits=splits
+        }
     }
 
-    //addPersonwWithRatio(int id, float split)
+    fun setSplit(name: String, value: Float){
+        if(value <= this.value) {
+            splits[name] = value
+        return
+        }
+        splits[name] =value
+    }
 
-    //addPersonWithValue(int id, float value)
-
-    //removePerson() - 1. If personId on item, calc their share and split among other shares
-    //                 2. Remove that person from map
+    fun recalc(){
+        var splitRatio = mutableMapOf<String,Float>()
+        for(x in splits){
+            splitRatio[x.key]=x.value/this.value
+        }
+        //unsure if single loop would cause concurrent mod error
+        for(x in splits){
+            splits[x.key] = value * splitRatio[x.key]!!
+        }
+    }
 
 }

@@ -1,8 +1,9 @@
 package controller
 
+import kotlinx.serialization.Serializable
 import model.Person
-
-data class PeopleManager (var people:MutableList<Person>){
+@Serializable
+class PeopleManager (var people:MutableList<Person>){
     var groups = mutableMapOf<String,MutableList<Int>>()
 
     //Create new person and add to list
@@ -50,10 +51,14 @@ data class PeopleManager (var people:MutableList<Person>){
     }
 
     //Get People by Id - returns list of people from list of ids
-    fun getPeopleById(ids:List<Int>){
+    fun getNamesById(ids:MutableList<Int>) : MutableList<String> {
         var matches :MutableList<Person>
-        (people.filter{ person -> person.id in ids })
-        //TODO finish if required
+        var names =mutableListOf<String>()
+        matches = (people.filter{ person -> person.id in ids }).toMutableList()
+        for(x in matches){
+            names.add(x.name)
+        }
+        return names
     }
 
     fun getAllPeople() : MutableList<Person>{

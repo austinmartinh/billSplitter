@@ -1,6 +1,7 @@
 package controller
 
 import model.Bill
+import model.Item
 import model.Person
 import kotlin.system.exitProcess
 
@@ -23,43 +24,49 @@ class MenuHandler(var p:PeopleManager,var b: BillManager) {
             println("\n0. Exit")
             println("------------------")
             //TODO Validate input
-            input = getNumericInput()
+            input = getNumericInput(5)
             when(input) {
                 1 -> billMenu()
                 2 -> peopleMenu()
                 3 -> load()
                 4 -> save()
-                5 -> exit()
+                0 -> exit()
             }
         }
     }
+
+    /************ BILL Functions **************/
+
 
     fun billMenu() {
         var bInput: Int? = -1
         while (bInput != 0) {
             println("Bill Management\n-----------------")
-            println("1. Search for Bills")    // searchBills()
-            println("2. Create New Bill")   //createNewBill()
-            println("3. Delete Bill")   //listAllBillsForDelete()
-            println("4. Update Bill")   //listAllBills
+            println("1. List Bills")
+            println("2. Print a Bill")
+            println("3. Create New Bill")
+            println("4. Delete Bill")
+            println("5. Update Bill Details")
+            println("6. Update Bill Items")
+
 
             println("\n0. Exit")
             println("------------------")
 
             //TODO Validate input
-            bInput = getNumericInput()
+            bInput = getNumericInput(5)
             when(bInput){
                 1 -> listBills(b.bills)
-                2 -> handleCreateBill()
-                3 -> handleUpdateBill()
+                2 -> handleDisplayBill()
+                3 -> handleCreateBill()
                 4 -> handleDeleteBill()
+                5 -> handleUpdateBill()
+                6 -> itemMenu()
             }
-            println("binput is $bInput")
         }
-        println("Bye!")
     }
 
-    fun listBills(bills : MutableList<Bill>) : Int {
+    private fun listBills(bills : MutableList<Bill>) : Int {
         println("Listing all bills")
         println("--------------------")
         for (x in bills){
@@ -71,15 +78,16 @@ class MenuHandler(var p:PeopleManager,var b: BillManager) {
         return bills.size
     }
 
-    fun handleCreateBill(){
+    private fun handleCreateBill(){
         var newBillDetails = readBillDetails()
         b.newBill(newBillDetails.first,newBillDetails.second)
     }
 
-    fun handleUpdateBill(){
+     private fun handleUpdateBill(){
         println("Select bill to update")
         var selected = selectBillIndexFromList(b.bills)
         var billToUpdate = b.bills[selected]
+
         var details = readBillDetails()
 
         for(x in billToUpdate.associatedPersonIds)
@@ -90,17 +98,24 @@ class MenuHandler(var p:PeopleManager,var b: BillManager) {
         billToUpdate.title = details.first
         billToUpdate.associatedPersonIds = details.second
 
-        b.bills.set(selected,billToUpdate)
+        b.bills[selected] = billToUpdate
     }
 
-    fun handleDeleteBill(){
+    private fun handleDeleteBill(){
+        if(b.bills.isEmpty()){
+            println("No bills to delete!")
+            return
+        }
         println("Select bill to delete")
         var selected = selectBillIndexFromList(b.bills)
+        if(selected <0){
+            selected=0
+        }
         b.bills.removeAt(selected)
     }
 
-    fun readBillDetails(): Pair<String,MutableList<Int>> {
-        var title : String = ""
+    private fun readBillDetails(): Pair<String,MutableList<Int>> {
+        var title = ""
         var assocIds = mutableListOf<Int>()
 
         println("Taking bill details")
@@ -121,6 +136,7 @@ class MenuHandler(var p:PeopleManager,var b: BillManager) {
             println("--> ")
             if(readLine().toString() =="y")
             {
+                //TODO
                 //printgroups()
                 //add groupToBill()
                     //sets groupId
@@ -141,7 +157,7 @@ class MenuHandler(var p:PeopleManager,var b: BillManager) {
         return Pair(first = title,second = assocIds)
     }
 
-    fun printBills(bills:MutableList<Bill>) : Int{
+    private fun printBills(bills:MutableList<Bill>) : Int{
         println("Listing bills")
         println("--------------------")
         for (x in bills){
@@ -153,25 +169,24 @@ class MenuHandler(var p:PeopleManager,var b: BillManager) {
         return p.people.size
     }
 
+
     /********** PERSON MENU AND FUNCTIONS **********/
 
-    fun peopleMenu(){
+    private fun peopleMenu(){
         var pInput: Int? = -1
         while (pInput != 0) {
             println("People Management\n-----------------")
-            println("1. Search People")    //listAllBills()
+            println("1. List all People")    //listAllBills()
             println("2. Create Person")   //createNewBill()
             println("3. Update Person")   //listAllBills
             println("4. Delete Person")   //listAllBillsForDelete()
             println("5. Create Group")
             println("6. Delete Group")
-            println("7. Update Group")
-
             println("\n0. Exit")
             println("------------------")
 
             //TODO Validate input
-            pInput = getNumericInput()
+            pInput = getNumericInput(7)
             when (pInput){
                 1 -> printPeople(p.getAllPeople())
                 2 -> p.newPerson(readPersonalDetails())
@@ -185,7 +200,7 @@ class MenuHandler(var p:PeopleManager,var b: BillManager) {
         println("Bye!")
     }
 
-    fun printPeople(people:MutableList<Person>) : Int{
+    private fun printPeople(people:MutableList<Person>) : Int{
         println("Listing people")
         println("--------------------")
         for (x in people){
@@ -197,12 +212,12 @@ class MenuHandler(var p:PeopleManager,var b: BillManager) {
         return p.people.size
     }
 
-    fun readPersonalDetails(): Pair<String,Boolean> {
+    private fun readPersonalDetails(): Pair<String,Boolean> {
         println("Taking personal details")
         println("---------------------")
 
-        var name : String = ""
-        var isUser : Boolean = false
+        var name  = ""
+        var isUser = false
 
         while (name == "") {
             println("Enter the persons name:")
@@ -219,22 +234,32 @@ class MenuHandler(var p:PeopleManager,var b: BillManager) {
         return Pair(first = name,second = isUser)
     }
 
-    fun handleUpdatePerson(){
+    private fun handleUpdatePerson(){
         println("Who would you like to update details for?")
-        val selected = selectUserIndexFromList(p.getAllPeople())
+        var selected = selectUserIndexFromList(p.getAllPeople())
         var updateDetails = readPersonalDetails()
+        if(selected<0){
+            selected=0
+        }
         p.updatePerson(selected, updateDetails.first,updateDetails.second)
     }
 
-    fun handleDeletePerson(){
+    private fun handleDeletePerson(){
+        if(p.people.isEmpty()){
+            println("No people to delete!")
+            return
+        }
         println("Who would you like to remove?")
-        val selected = selectUserIndexFromList(p.getAllPeople())
+        var selected = selectUserIndexFromList(p.getAllPeople())
         println("\nDeleting Person from list")
         println("----------------------------")
+        if(selected<0){
+            selected=0
+        }
         p.deletePerson(selected)
     }
 
-    fun handleCreateGroup() {
+    private fun handleCreateGroup() {
         var groupName = readGroupName()
         println("----------------------------")
         println("Select people to add to group")
@@ -242,13 +267,17 @@ class MenuHandler(var p:PeopleManager,var b: BillManager) {
         var members = readToAddToGroup()
         p.createOrUpdateGroup(groupName,members)
     }
-    fun handleDeleteGroup(){
+    private fun handleDeleteGroup(){
+        if(p.groups.isEmpty()){
+            println("No groups to delete!")
+            return
+        }
         listGroups(p.groups)
         var groupName = readGroupName()
         p.removeGroup(groupName)
     }
 
-    fun listGroups(g : MutableMap<String, MutableList<Int>>) : Int{
+    private fun listGroups(g : MutableMap<String, MutableList<Int>>) : Int{
         println("Listing group names")
         println("--------------------")
         var i = 1
@@ -276,7 +305,11 @@ class MenuHandler(var p:PeopleManager,var b: BillManager) {
         var finished = false
         while (!finished) {
             val people = p.getAllPeople()
-            var id = people[selectUserIndexFromList(people)].id
+            var index =selectUserIndexFromList(people)
+            if(index <0){
+                index=0
+            }
+            var id = people[index].id
             if (!members.contains(id)) {
                 members.add(id)
             }
@@ -289,17 +322,196 @@ class MenuHandler(var p:PeopleManager,var b: BillManager) {
         return members
     }
 
+    private fun handleDisplayBill(){
+        val billId = selectBillIndexFromList(b.bills)
+        val bill = b.getBillById(billId)
+        if (bill != null) {
+            listItems(bill)
+            return
+        }
+        println("Error locating that bill")
+    }
+    /************** Item FUNCTIONS **********************/
+
+    private fun itemMenu() {
+        println("What bill would you like to edit the items of?")
+        print("--->")
+        var bill = b.bills[selectBillIndexFromList(b.bills)]
+
+        var input: Int? = -1
+        while (input != 0) {
+            println("Item Management\n-----------------")
+            println("1. Add Item to bill")
+            println("2. Remove Item from Bill")
+            println("3. Update Item on Bill")
+
+            println("\n0. Exit")
+            println("------------------")
+
+            //TODO Validate input
+            input = getNumericInput(4)
+            when(input){
+                1 -> handleCreateItem(bill)
+                2 -> handleDeleteItem(bill)
+                3 -> handleUpdateItem(bill)
+            }
+        }
+    }
+
+    private fun handleCreateItem(bill: Bill) {
+        //item name
+        var itemName =readItemName()
+
+        //item value
+        var value: Float = readItemValue()
+
+        //for each person on bill, decide their split
+        var splits = mutableMapOf<String, Float>()
+
+        if (bill.associatedPersonIds.isNotEmpty()) {
+            var remaining = value
+            for (x in bill.associatedPersonIds) {
+                var name = p.getPersonById(x)!!.name
+                var split: Float? = null
+                while (split == null) {
+                    println("How much does $name owe? ($remaining unaccounted for)")
+                    print("---> ")
+                    split = readLine()?.toFloatOrNull()
+                }
+                remaining -= split
+                splits[name] = split
+            }
+        }
+        bill.addItem(Item(itemName,value, bill.id))
+    }
+
+    fun listItems(bill:Bill){
+        val namesOnBill = p.getNamesById(bill?.associatedPersonIds!!)
+        if (bill != null) {
+            println("Listing the bill items")
+            println("****************************")
+            println("\t ${bill.title}")
+            println("****************************")
+            for(x in bill.items){
+                println("$x.name\t\t\t ${x.value}")
+                for(y in x.splits){
+                    println("\t-${y.key}\t\t${y.value}")
+                }
+            }
+            println("****************************")
+            println("Total\t\t\t${bill.total()}")
+                for(x in bill.subtotals(namesOnBill)){
+                    println("\t${x.key}'s share\t\t${x.value}")
+            }
+        }
+    }
+
+    fun handleUpdateItem(bill:Bill){
+        if(bill.items.isEmpty()){
+            println("No items to update!")
+            return
+        }
+        var item = bill.items[selectItemIndexFromList(bill)]
+
+        var name =item.name
+        var newValue = item.value
+        var recalc = false
+        var splits = item.splits
+
+        println("Would you like to update the item name? (y/n)")
+        print("-->")
+        if(readLine()=="y"){
+            name = readItemName()
+        }
+
+        println("Would you like change the value of the item? (y/n)")
+        println("--> ")
+        if(readLine() == "y"){
+            newValue = readItemValue()
+        }
+
+        println("Would you like to automatically recalculate splits? (y/n)")
+        if (readLine()=="y"){
+            recalc = true
+        }
+        else{
+            splits = readSplitValues(newValue, bill)
+        }
+
+        item.update(name,newValue, recalc, splits,)
+    }
+
+    fun handleDeleteItem(bill:Bill){
+        if(bill.items.isEmpty()){
+            println("No items to delete!")
+            return
+        }
+        println("What item would you like to remove?")
+        var index = selectItemIndexFromList(bill)
+        bill.items.removeAt(index)
+
+
+    }
+
+    private fun readItemName() :String {
+        var itemName = ""
+        while (itemName == "") {
+            println("Enter a name for the item")
+            print("---> ")
+            itemName = readLine().toString()
+        }
+        return itemName
+    }
+
+    private fun readItemValue(): Float {
+        var value: Float? = null
+        while (value == null) {
+            println("Enter the value of the item")
+            print("---> ")
+            value = readLine()?.toFloatOrNull()
+        }
+        return value
+    }
+
+    fun readSplitValues(value:Float,bill: Bill) : MutableMap<String,Float> {
+        var splits = mutableMapOf<String, Float>()
+
+        if (bill.associatedPersonIds.isNotEmpty()) {
+            var remaining = value
+            for (x in bill.associatedPersonIds) {
+                var name = p.getPersonById(x)!!.name
+                var split: Float? = null
+                while (split == null) {
+                    println("How much does $name owe? ($remaining unaccounted for)")
+                    print("---> ")
+                    split = readLine()?.toFloatOrNull()
+                }
+                remaining -= split
+                splits[name] = split
+            }
+        }
+        return splits
+    }
 
     /************** HELPER FUNCTIONS **********************/
 
     /**
      * Takes input until a number is given
      */
-    fun getNumericInput() : Int?{
+    private fun getNumericInput(upperBound:Int) : Int?{
         var input : Int? = null
         while(input == null || input <0) {
             print("Please enter a numeric index\n--->  ")
             input = readLine()?.toIntOrNull()
+        }
+        if (input<0){
+            println("Selecting first entry")
+            input = 0
+        }
+        if(input >= upperBound)
+        {
+            println("Selecting last entry")
+            input = upperBound
         }
         return input
     }
@@ -307,77 +519,47 @@ class MenuHandler(var p:PeopleManager,var b: BillManager) {
     /**
      * Take a list of people, prints them sequentially and takes user input to represent selecting that item.
      */
-    fun selectUserIndexFromList(people: MutableList<Person>): Int{
+    private fun selectUserIndexFromList(people: MutableList<Person>): Int {
         val upperBound = printPeople(people)
-        var selected = getNumericInput()!! -1
-        if (selected<0){
-            println("Selecting first entry")
-            selected = 0
-        }
-        if(selected >= upperBound)
-        {
-            println("Selecting last entry")
-            selected = upperBound-1
-        }
-        return selected
+
+        return getNumericInput(upperBound)!! -1
     }
 
-    fun selectBillIndexFromList(bills: MutableList<Bill>): Int{
+    private fun selectBillIndexFromList(bills: MutableList<Bill>): Int{
         val upperBound = printBills(bills)
-        var selected = getNumericInput()!! -1
-        if (selected<0){
-            println("Selecting first entry")
-            selected = 0
-        }
-        if(selected >= upperBound)
-        {
-            println("Selecting last entry")
-            selected = upperBound-1
-        }
-        return selected
+        return getNumericInput(upperBound)!! -1
     }
 
-    fun save(){
+    private fun selectItemIndexFromList(bill: Bill): Int{
+        val upperBound = bill.items.size
+
+        println("Listing items")
+        println("--------------------")
+        var num = 0
+        for(x in bill.items){
+            num++
+            println("$num. $x.name\t\t\t ${x.value}")
+        }
+        println("--------------------")
+
+        return getNumericInput(upperBound)!! -1
+    }
+
+    private fun save(){
         //TODO Check order
         p.save()
         b.save()
     }
 
-    fun load(){
+    private fun load(){
         p.load()
         b.load()
     }
 
-    fun exit(){
+    private fun exit(){
         println("Bye!")
         exitProcess(0)
     }
 
 
-//Manage Bills
-//1. Create a new Bill
-//2. Update Bills
-//3. Delete a bill
-
-//Manage People
-
-//1. People
-//1. View all people
-//List all people and an index, type index to select
-//1. View all bills for person
-//2. View Groups
-//2. Create a new Person
-//3. Delete a person
-
-//2. Groups
-//1. View all Groups
-//1. Add person to this group
-//2. Remove person from this group - calls recalc method
-//2. Create Group
-//3. Delete Group
-
-//
-//    fun setMode(mode: Int) {
-//       this.operationMode = mode
-//    }
 }
