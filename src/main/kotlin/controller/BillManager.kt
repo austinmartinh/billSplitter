@@ -1,10 +1,7 @@
 package controller
 
-import kotlinx.serialization.Serializable
 import model.Bill
-import model.Item
 
-//import tornadofx.*
 class BillManager (var bills :MutableList<Bill>){
 
     fun newBill(title:String,ids:MutableList<Int>){
@@ -25,11 +22,4 @@ class BillManager (var bills :MutableList<Bill>){
         billToUpdate.updatePeople(ids,addMode)
     }
 
-    fun save(){
-
-    }
-
-    fun load(){
-
-    }
 }

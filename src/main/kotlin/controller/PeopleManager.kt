@@ -1,8 +1,7 @@
 package controller
 
-import kotlinx.serialization.Serializable
 import model.Person
-@Serializable
+
 class PeopleManager (var people:MutableList<Person>){
     var groups = mutableMapOf<String,MutableList<Int>>()
 
@@ -75,21 +74,10 @@ class PeopleManager (var people:MutableList<Person>){
         }
     }
 
-
-
     fun clearIsUser(){
         for (x in people){
             x.isUser = false
         }
     }
-
-    fun save(){
-
-    }
-
-    fun load(){
-
-    }
-
 
 }
