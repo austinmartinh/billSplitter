@@ -18,16 +18,19 @@ class JsonManager {
     private var bills = mutableListOf<Bill>()
     private var people = mutableListOf<Person>()
 
+    @SuppressWarnings
     fun serializeBills(bills: MutableList<Bill>) {
         val billsString = gsonBuilder.toJson(bills, listTypeBills)
         write(BILLS_FILE, billsString)
     }
 
+    @SuppressWarnings
     fun serializePeople(people: MutableList<Person>) {
         val peopleString = gsonBuilder.toJson(people, listTypePeople)
         write(PEOPLE_FILE, peopleString)
     }
 
+    @SuppressWarnings
     fun deserializeBills(): MutableList<Bill> {
         if (exists(BILLS_FILE)) {
             val billsString = read(BILLS_FILE)
@@ -36,7 +39,7 @@ class JsonManager {
         }
         return mutableListOf()
     }
-
+    @SuppressWarnings
     fun deserializePeople(): MutableList<Person> {
         if (exists(PEOPLE_FILE)) {
             val peopleString = read(PEOPLE_FILE)

@@ -2,15 +2,14 @@ package model
 
 import java.time.LocalDateTime
 
-data class Bill (var title:String){
+data class Bill (var title:String, var associatedPersonIds:MutableList<Int>){
 
-    constructor(title:String, associatedPersonIds:MutableList<Int>) :this(title)
     val id = LocalDateTime.now().hashCode()
     var items = mutableListOf<Item>()
 
-    var associatedPersonIds = mutableListOf<Int>()
-
-    fun addItem(item:Item){}
+    fun addItem(item:Item){
+        items.add(item)
+    }
 
     fun removeItem(/*id?*/){}
     // Get an Item...updates will be called on it directly
@@ -52,7 +51,8 @@ data class Bill (var title:String){
             for (y in items) {
                 //ensures y.splits is not null
                 if (y.splits.containsKey(x)){
-                    subtotals[x]!! + y.splits[x]!!
+                    var share = subtotals[x]!! + y.splits[x]!!
+                    subtotals[x] = share
                 }
             }
         }

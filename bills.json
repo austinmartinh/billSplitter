@@ -1,0 +1,32 @@
+[
+  {
+    "id": 646492587,
+    "items": [
+      {
+        "id": 942714984,
+        "name": "Starter",
+        "value": 18.5,
+        "billId": 646492587,
+        "splits": {
+          "Austin": 10.0,
+          "Sara": 8.5
+        }
+      },
+      {
+        "id": -2140487380,
+        "name": "Main",
+        "value": 56.0,
+        "billId": 646492587,
+        "splits": {
+          "Austin": 40.0,
+          "Sara": 16.0
+        }
+      }
+    ],
+    "title": "Dinner",
+    "associatedPersonIds": [
+      1170276399,
+      1771778214
+    ]
+  }
+]
